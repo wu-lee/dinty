@@ -1,0 +1,14 @@
+{
+  "name": "dinty",
+  "version": "0.1.0",
+  "description": "Utilities for converting to and from DINTY and FGHJK tetrad map coordinates",
+  "main": "dinty.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nick Stokoe",
+  "license": "GPL2",
+  "devDependencies": {
+    "qunitjs": "^1.23.0"
+  }
+}
