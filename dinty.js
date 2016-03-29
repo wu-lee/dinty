@@ -158,3 +158,14 @@ function gridrefToRelativeCoord(gridref, origin) {
 
     return coord;
 }
+
+
+module.exports = {
+    gridrefToRelativeCoord: gridrefToRelativeCoord,
+    gridrefToFalseOriginCoord: gridrefToFalseOriginCoord,
+    tetradToFalseOriginCoord: tetradToFalseOriginCoord,
+    osAlphaToFalseOriginCoord: osAlphaToFalseOriginCoord,
+    fghjkToXY: fghjkToXY,
+    dintyToXY: dintyToXY,
+};
+
