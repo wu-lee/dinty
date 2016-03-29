@@ -4,11 +4,12 @@
   "description": "Utilities for converting to and from DINTY and FGHJK tetrad map coordinates",
   "main": "dinty.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "NODE_PATH=. qunit-cli t/test-dinty.js"
   },
   "author": "Nick Stokoe",
   "license": "GPL2",
   "devDependencies": {
+    "qunit-cli": "^0.2.0",
     "qunitjs": "^1.23.0"
   }
 }
