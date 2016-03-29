@@ -1,44 +1,6 @@
 
-/*
-
-The "DINTY" tetrad scheme divides a square region into 5x5 subsquares,
-lettered from south to north, then west to east.  The letter O is
-omitted.
-
-EJPUZ
-DINTY  <- gives the scheme the name
-CHMSX
-BGLRW
-AFKQV
-
-http://sxbrc.org.uk/biodiversity/recording/ngr.php
-http://www.kmbrc.org.uk/recording/help/gridrefhelp.php?page=1
-
-See also https://en.wikipedia.org/wiki/Ordnance_Survey_National_Grid
-
-The OS's letter grid system likewise divides a square region into 5x5
-subsquares, but in this case lettered from east to west, then north to
-south, as below.  Also, the letter I is omitted, not the letter O.  By
-analogy to the DINTY scheme I call this the FGHJK scheme.  Possibly
-pronounced "fighjack", with a silent "gh".
-
-ABCDE
-FGHJK
-LMNOP
-QRSTU
-VWXYZ
-
-There is a 500km grid, with the "false origin" at the junction of R S
-W and X. The "false origin" is a point southwest of the British
-mainland, such that all locations in the mainland can be given
-positive coordinates relative to it.
-
-Within each of these 500km squares is another 5x5 grid lettered in the
-same manner.
-
-http://www.ordnancesurvey.co.uk/oswebsite/gps/information/coordinatesystemsinfo/guidetonationalgrid/page9.html
-
-*/
+/* dinty.js
+   Authored by Nick Stokoe (c) 2016 */
 
 var gridref_rx = /^([a-z])([a-z])(\d*)([a-z])?$/i;
 
