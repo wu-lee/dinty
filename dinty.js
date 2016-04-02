@@ -1,6 +1,15 @@
 
-/* dinty.js
-   Authored by Nick Stokoe (c) 2016 */
+/** Dinty module
+ *
+ * Javascript utilities for converting Ordnance Survey grid references
+ * into cartesian coordinates, with support for DINTY labelled tetrad
+ * references.
+ *
+ * @module dinty
+ *
+ * @copyright Nick Stokoe 2016 
+ */
+
 
 var gridref_rx = /^([a-z])([a-z])(\d*)([a-z])?$/i;
 
@@ -30,6 +39,10 @@ function makeAlphaToIJ(offset, omitted) {
 var fghjkToIJ = makeAlphaToIJ("A", "I");
 var dintyToIJ = makeAlphaToIJ("A", "O");
 
+/** Convert a DINTY coordinate letter to an XY coordinate 
+ *
+ * @returns an object with numeric attributes x and y
+ */
 function dintyToXY(alpha) {
     var ij = dintyToIJ(alpha);
     return {
