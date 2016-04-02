@@ -144,6 +144,21 @@ not use CommonJS, the standard way to wrap the module such that it can
 be exposed as an attribute of the `window` object is to use
 [Browserify](http://browserify.org/), also available on npm.
 
+Tests
+-----
+
+Tests live in the `t/` subdirectory, and use the QUnit test
+framework. Run them in nodejs with:
+
+    npm test
+
+Issues
+------
+
+Please report any bugs or other issues on GitHub.
+
+    https://github.com/wu-lee/dinty/issues
+
 Author
 ------
 

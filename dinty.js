@@ -13,6 +13,29 @@
 
 var gridref_rx = /^([a-z])([a-z])(\d*)([a-z])?$/i;
 
+/** Make a look-up function from alphabetical labels to column and row indexes.
+ *
+ * The assumption is this is for a 5 by 5 grid, indexed by a pair of
+ * integers `(I, J)`. The labelling starts with the character given by
+ * `offset` for `(0, 0)` and continues, incrementing `I` first and then
+ * `J`, using 26 characters, but omitting the character given by
+ * `omitted`.
+ *
+ * The returned function will take a character in that range, and return
+ * an array with the two indexes, `[i, j]`.
+ *
+ * The returned function will throw an Error if the character is out
+ * of range or equal to the character set by `omitted`.
+ *
+ * @param {String} offset The first character of this indicates the
+ * first character of the sequence
+ *
+ * @param {String} omitted The first character of this indicates a
+ * character to omit from the sequence.
+ *
+ * @returns {Function} A look-up function as described.
+ * @private
+ */
 function makeAlphaToIJ(offset, omitted) {
 
     var baseOrd = offset.charCodeAt(0);
@@ -29,19 +52,48 @@ function makeAlphaToIJ(offset, omitted) {
 
 	var i = Math.floor(index / 5);
 	var j = index - i*5;
-	return [i, j]
+	return [i, j];
     };
 }
 
-// Accepts an *upper* case letter representing an OS grid letter.
-// Returns an object containing row and a column attribute, each an
-// integer in the range 0 .. 4
+/** Maps Ordnance Survey grid-ref lettering to an index pair.
+ *
+ * Note that the indexes returned need to be mapped to get the sense
+ * used by the OS grid-ref. [i, j] -> [j, 4-i].
+ *
+ * Generated using {@link makeAlphaToIJ}.
+ * @private
+ */
 var fghjkToIJ = makeAlphaToIJ("A", "I");
+
+/** Maps DINTY grid-ref lettering to an index pair 
+ *
+ * Generated using {@link makeAlphaToIJ}.
+ * @private
+ */
 var dintyToIJ = makeAlphaToIJ("A", "O");
 
-/** Convert a DINTY coordinate letter to an XY coordinate 
+/** Convert a DINTY coordinate letter to an XY index pair.
  *
- * @returns an object with numeric attributes x and y
+ *     EJPUZ
+ *     DINTY
+ *     CHMSX
+ *     BGLRW
+ *     AFKQV
+ *
+ * In the returned coordinates, (0,0) indicates the south-western
+ * square, (4,4) the north-eastern, (4,0) the south-eastern and (0,4)
+ * the north-western.
+ *
+ * @param {String} alpha An upper case character A-Z (but not O).
+ *
+ * @returns {Object} An object with integer attributes `x` (west to
+ * east) and `y` (south to north).
+ *
+ * @throws an Error if either parameter is not an upper case
+ * DINTY-scheme letter.
+ *
+ * @instance
  */
 function dintyToXY(alpha) {
     var ij = dintyToIJ(alpha);
@@ -51,6 +103,28 @@ function dintyToXY(alpha) {
     };
 }
 
+/** Convert a FGHJK coordinate letter to an XY index pair.
+ *
+ *     ABCDE
+ *     FGHJK
+ *     LMNOP
+ *     QRSTU
+ *     VWXYZ
+ *
+ * In the returned coordinates, (0,0) indicates the south-western
+ * square, (4,4) the north-eastern, (4,0) the south-eastern and (0,4)
+ * the north-western.
+ *
+ * @param {String} alpha An upper case character A-Z (but not I).
+ *
+ * @returns {Object} An object with integer attributes `x` (west to
+ * east) and `y` (south to north).
+ *
+ * @throws an Error if either parameter is not an upper case
+ * FGHJK-scheme letter.
+ *
+ * @instance
+ */
 function fghjkToXY(alpha) {
     var ij = fghjkToIJ(alpha);
     return {
@@ -59,7 +133,29 @@ function fghjkToXY(alpha) {
     };
 }
 
-// Resulting coordinates are in units of meters.
+/** Converts a top-level 2-letter Ordnance Survey grid ref into the
+ * coordinate of the square's south-western corner in meters relative
+ * to the false origin.
+ *
+ * In the returned coordinates, (0,0) indicates the south-western
+ * square, (0,240000) the north-eastern, (240000,0) the south-eastern
+ * and (0,240000) the north-western.
+ *
+ * @param {String} grid500km A FGHJK-scheme letter indicating the 500km
+ * square.
+ *
+ * @param {String} grid100km A FGHJK-scheme letter indicating the
+ * 100km square
+ *
+ * @returns {Object} An object with integer attributes `x` (west to
+ * east) and `y` (south to north), possible values ranging from 0 to
+ * 240000 in steps of 100000.
+ *
+ * @throws an Error if either parameter is not an upper case
+ * FGHJK-scheme letter. However, trailing characters are ignored.
+ *
+ * @instance
+ */
 function osAlphaToFalseOriginCoord(grid500km, grid100km) {
     var coord500km = fghjkToXY(grid500km);
     var coord100km = fghjkToXY(grid100km);
@@ -70,8 +166,27 @@ function osAlphaToFalseOriginCoord(grid500km, grid100km) {
     };
 }
 
-// Tetrads have a fixed scale of 2km square.  Resulting coord is an
-// offset in meters from the hectad bottom-left corner.
+/** Converts a DINTY tetrad label into the coordinate of the square's
+ * south-western corner in meters relative to the hectad's
+ * south-western corner.
+ *
+ * Tetrads have a fixed scale of 2km square.  In the returned
+ * coordinates, (0,0) indicates the south-western square, (0,8000)
+ * the north-eastern, (8000,0) the south-eastern and (0,8000) the
+ * north-western.
+ *
+ * @param {String} alpha A DINTY-scheme letter indicating the
+ * tetrad.
+ *
+ * @returns {Object} An object with integer attributes `x` (west to
+ * east) and `y` (south to north), possible values from 0 to 8000 in
+ * steps of 2000.
+ *
+ * @throws an Error if the parameter is not an upper case
+ * DINTY-scheme letter. However, trailing characters are ignored.
+ *
+ * @instance
+ */
 function tetradToFalseOriginCoord(alpha) {
     var offset = dintyToXY(alpha);
     return {
@@ -80,6 +195,34 @@ function tetradToFalseOriginCoord(alpha) {
     };
 }
 
+/** Convert an arbitrary grid reference string into the coordinate of
+ * the square's south-western corner relative to the false origin, and
+ * a size, in meters.
+ *
+ * The grid reference can be of the form:
+ *
+ * * `ABxy` - where
+ *   - `A` and `B` are 500 and 100km FGHJK grid labels, and
+ *   - `x` and `y` are zero or more digit eastward/northward offsets respectively.
+ * * `ABnmT` - where
+ *   - `A` and `B` are 500 and 100km FGHJK grid labels, and
+ *   - `n` and `m` are single digit eastward/northward offsets, respectively, and
+ *   - `T` is a DINTY tetrad label.
+ *
+ * @param {String} gridref A grid reference string.
+ *
+ * @returns {Object} An object with integer attributes `x` (distance
+ * east of the false origin) and `y` (distance north of it), possible
+ * values from 0 to 250000, and an attribute `precision` indicating
+ * the size of the square, all in meters.
+ *
+ * @throws an Error if `A` or `B` are not an upper case FGHJK-scheme
+ * letters, or if `T` is not an upper case DINTY-scheme letter, or if
+ * `n` or `m` are not single digits. However, `x` and `y` may be any
+ * length so long as they are all digits.
+ *
+ * @instance
+ */
 function gridrefToFalseOriginCoord(gridref) {
     var match = gridref_rx.exec(gridref);
     if (!match) 
@@ -125,6 +268,28 @@ function gridrefToFalseOriginCoord(gridref) {
 }
 
 
+/** Convert an arbitrary grid reference string into the coordinate of
+ * the square's south-western corner relative to the given origin.
+ *
+ * The grid reference can as defined in {@link gridrefToFalseOriginCoord}.
+ *
+ * @param {String} gridref A grid reference string.
+ *
+ * @param {Object} origin A coordinate relative to the false origin,
+ * in meters, expressed as an object with numeric `x` and `y`
+ * attributes.
+ *
+ * @returns {Object} An object with integer attributes `x` (distance
+ * east of `origin`) and `y` (distance north of it), and an attribute
+ * `precision` indicating the size of the square, all in meters.
+ *
+ * @throws an Error if `A` or `B` are not an upper case FGHJK-scheme
+ * letters, or if `T` is not an upper case DINTY-scheme letter, or if
+ * `n` or `m` are not single digits. However, `x` and `y` may be any
+ * length so long as they are all digits.
+ *
+ * @instance
+ */
 function gridrefToRelativeCoord(gridref, origin) {
     var coord = gridrefToFalseOriginCoord(gridref);
 
