@@ -1,7 +1,7 @@
 {
   "name": "dinty",
   "version": "0.1.0",
-  "description": "Utilities for converting DINTY and FGHJK grid references into coordinates",
+  "description": "Utilities for converting Ordnance Survey grid references into cartesian coordinates",
   "main": "dinty.js",
   "scripts": {
     "test": "NODE_PATH=. qunit-cli t/test-dinty.js",
