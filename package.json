@@ -1,6 +1,6 @@
 {
   "name": "dinty",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Utilities for converting Ordnance Survey grid references into cartesian coordinates",
   "main": "dinty.js",
   "scripts": {
