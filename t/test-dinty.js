@@ -144,48 +144,76 @@ testCases({
 
 // FIXME "invalid grid reference letter" might be inappropriate in the case of tetrads
 
-
-
-/*
-
-test( "dintyToIJ", function() {
-    var cases = [
-        [
-	    "",
-	    "SJ86",
-	    {x: 0, y:0}
-	],
-    ];
-    
-    for(var ix = 0; ix < cases.length; ix++) {
-        var gridref = cases[ix][1];
-        var msg = cases[ix][0]+": "+gridref;
-        var data = gridref2view(gridref);
-
-        var expected = cases[ix][2];
-
-        deepEqual( data, expected, msg );
-    }
+testCases({
+    title: "xyToDinty",
+    function: dinty.xyToDinty,
+    cases: [
+	[[0,0], "A"],
+	[[1,1], "A"],
+	[[0,9], "E"],
+	[[9,0], "V"],
+	[[9,9], "Z"],
+	[[3,6], "I"],
+	[["0","0"], "A"],
+	[[" 0","9 "], "E"],
+	[["9.0","0.0"], "V"],
+	[["9e0","+9"], "Z"],
+	[["3 "," 0006.00000 "], "I"],
+	[[10,6], /coordinates must be positive but not exceed 9/],
+	[[6,10], /coordinates must be positive but not exceed 9/],
+	[[-1,1], /coordinates must be positive but not exceed 9/],
+	[[1,-1], /coordinates must be positive but not exceed 9/],
+	[["3 3",1], /coordinates must be positive but not exceed 9/],
+	[["3 3"," 5^5"], /coordinates must be positive but not exceed 9/],
+    ],    
 });
-*/
-/*
-test( "gridref2view correctly transforms grid references", function() {
-    var cases = [
-        [
-	    "",
-	    "SJ86",
-	    {x: 0, y:0}
-	],
-    ];
-    
-    for(var ix = 0; ix < cases.length; ix++) {
-        var gridref = cases[ix][1];
-        var msg = cases[ix][0]+": "+gridref;
-        var data = gridref2view(gridref);
 
-        var expected = cases[ix][2];
-
-        deepEqual( data, expected, msg );
-    }
+testCases({
+    title: "xyToFghjk",
+    function: dinty.xyToFghjk,
+    cases: [
+	[[0,0], "V"],
+	[[1,1], "V"],
+	[[0,9], "A"],
+	[[9,0], "Z"],
+	[[9,9], "E"],
+	[[3,6], "G"],
+	[["0","0"], "V"],
+	[[" 0","9 "], "A"],
+	[["9.0","0.0"], "Z"],
+	[["9e0","+9"], "E"],
+	[["3 "," 0006.00000 "], "G"],
+	[[10,6], /coordinates must be positive but not exceed 9/],
+	[[6,10], /coordinates must be positive but not exceed 9/],
+	[[-1,1], /coordinates must be positive but not exceed 9/],
+	[[1,-1], /coordinates must be positive but not exceed 9/],
+	[["3 3",1], /coordinates must be positive but not exceed 9/],
+	[["3 3"," 5^5"], /coordinates must be positive but not exceed 9/],
+    ],    
 });
-*/
+
+testCases({
+    title: "gridrefToTetrad",
+    function: dinty.gridrefToTetrad,
+    cases: [
+	["SJ3828", "SJ32Z"],
+	["SJ3829", "SJ32Z"],
+	["SJ3928", "SJ32Z"],
+	["SJ3929", "SJ32Z"],
+	["SJ391299", "SJ32Z"],
+	["SJ39232987", "SJ32Z"],
+	["SJ3945629765", "SJ32Z"],
+        ["VV0000", "VV00A"],
+        ["VV0909", "VV00Z"],
+	["SJ32Z", "SJ32Z"],
+	["SJ32O", /invalid grid ref, tetrads cannot have an 'O' suffix:/],
+        ["VV", /grid ref is too coarse to be a tetrad:/],
+        ["VV0", /grid ref is too coarse to be a tetrad:/],
+        ["VV00", /grid ref is too coarse to be a tetrad:/],
+        ["VV000", /invalid grid ref, unbalanced digits:/],
+        ["VVV00", /invalid grid ref:/],
+        ["VV000O", /invalid grid ref, tetrads can only have 2 digits:/],
+        ["V0000", /invalid grid ref:/],
+    ],    
+});
+

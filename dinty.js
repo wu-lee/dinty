@@ -133,6 +133,48 @@ function fghjkToXY(alpha) {
     };
 }
 
+/** Convert an XY index pair into a DINTY grid reference letter.
+ *
+ * This is the reverse operation to that performed by dintyToXY().
+ *
+ * @return One of the letters A to Z, excluding O.
+ * @throws if x or y are not within the valid range 0..9 inclusive
+ *
+ * @see dintyToXY
+ *
+ */
+function xyToDinty(x,y) {
+    x = Number(x);
+    y = Number(y);
+
+    if (x<0 || x>9 || y<0 || y>9 || Number.isNaN(x) || Number.isNaN(y))
+        throw new Error("coordinates must be positive but not exceed 9");
+
+    var ix = (x>>1)*5 + (y>>1);
+    return "ABCDEFGHIJKLMNPQRSTUVWXYZ".charAt(ix);
+}
+
+/** Convert an XY index pair into a FGHJK grid reference letter.
+ *
+ * This is the reverse operation to that performed by fghjkToXY().
+ *
+ * 
+ * @return One of the letters A to Z, excluding I.
+ * @throws if x or y are not within the valid range 0..9 inclusive
+ *
+ * @see fghjkToXY
+ *
+ */
+function xyToFghjk(x,y) {
+    x = Number(x);
+    y = Number(y);
+    if (x<0 || x>9 || y<0 || y>9 || Number.isNaN(x) || Number.isNaN(y))
+        throw new Error("coordinates must be positive but not exceed 9");
+
+    var ix = (x>>1) + (4-(y>>1))*5;
+    return "ABCDEFGHJKLMNOPQRSTUVWXYZ".charAt(ix);
+}
+
 /** Converts a top-level 2-letter Ordnance Survey grid ref into the
  * coordinate of the square's south-western corner in meters relative
  * to the false origin.
@@ -300,12 +342,50 @@ function gridrefToRelativeCoord(gridref, origin) {
 }
 
 
+function gridrefToTetrad(gridref) {
+    if (gridref.length < 5)
+        throw new Error("grid ref is too coarse to be a tetrad: '"+gridref+"'");
+
+    gridref = gridref.toUpperCase();
+    var match = gridref.match(gridref_rx);
+
+    if (!match)
+        throw new Error("invalid grid ref: '"+gridref+"'");
+
+    if (match[4]) {
+        // There is a letter suffix
+
+        if (match[3].length != 2)
+            throw new Error("invalid grid ref, tetrads can only have 2 digits: '"+gridref+"'");
+
+        if (match[4] === 'O')
+            throw new Error("invalid grid ref, tetrads cannot have an 'O' suffix: '"+gridref+"'");
+
+        return gridref; // Already a tetrad
+    }
+
+    var digits = match[3].length;
+    if (digits % 2 > 0)
+        throw new Error("invalid grid ref, unbalanced digits: '"+gridref+"'");
+
+    digits = digits >> 1;
+    var x1 = gridref.charAt(2);
+    var x2 = gridref.charAt(3);
+    var y1 = gridref.charAt(2+digits);
+    var y2 = gridref.charAt(3+digits);
+
+    return match[1]+match[2]+x1+y1+xyToDinty(x2, y2);
+}
+
 module.exports = {
     gridrefToRelativeCoord: gridrefToRelativeCoord,
     gridrefToFalseOriginCoord: gridrefToFalseOriginCoord,
     tetradToFalseOriginCoord: tetradToFalseOriginCoord,
     osAlphaToFalseOriginCoord: osAlphaToFalseOriginCoord,
+    gridrefToTetrad: gridrefToTetrad,
     fghjkToXY: fghjkToXY,
     dintyToXY: dintyToXY,
+    xyToDinty: xyToDinty,
+    xyToFghjk: xyToFghjk,
 };
 
