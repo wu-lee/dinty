@@ -251,7 +251,7 @@ function gridrefToFalseOriginCoord(gridref) {
 	// If a tetrad id is suffixed, we must have a 2 digit grid reference
 	if (eastnothings.length != 2)
 	    throw new Error("malformed grid reference contains tetrad suffix "+
-			    "with wrong numeric precision ("+eastnothings.length+" digit reference)");
+			    "with wrong numeric precision ("+eastnothings.length+" digit reference): "+gridref);
 
 	// convert the tetrad component
 	tetradCoord = tetradToFalseOriginCoord(tetradId);
